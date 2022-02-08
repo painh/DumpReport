@@ -23,6 +23,8 @@ namespace DumpReport
         public string LogFolder { get; set; }       // Folder where the debugger's output file is stored
         public bool LogClean { get; set; }          // If true, log files are deleted after execution
         public string SourceCodeRoot { get; set; }  // Specifies a root folder for the source files
+        public string ModuleFile { get; set; }  // Specifies a root folder for the source files
+        
 
         public Config()
         {
@@ -131,6 +133,11 @@ namespace DumpReport
                                     break;
                                 case "SourceCodeRoot":
                                     value = reader["folder"];
+                                    if (value != null && value.Length > 0)
+                                        SourceCodeRoot = value.ToUpper();
+                                    break;
+                                case "Module":
+                                    value = reader["file"];
                                     if (value != null && value.Length > 0)
                                         SourceCodeRoot = value.ToUpper();
                                     break;

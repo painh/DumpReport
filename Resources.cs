@@ -5,6 +5,7 @@
         static public string configFile = "DumpReportCfg.xml";
 
         #region css
+
         static public string css = @"body {
     font-family: verdana, arial, sans-serif;
     font-size: 12px;
@@ -101,9 +102,11 @@ button:focus {
     font-weight: normal;
 }
 ";
+
         #endregion
 
         #region javascript
+
         static public string scripts = @"
 function expand(divName, buttonName) {
     if (document.getElementById(divName) === null) return;
@@ -141,9 +144,11 @@ function setVisibility(show) {
     }
 }
 ";
+
         #endregion
 
         #region xml
+
         static public string xml = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <Config>
     <Debugger exe64="""" exe32="""" timeout=""60"" />
@@ -153,8 +158,10 @@ function setVisibility(show) {
     <Log folder="""" clean=""1""/>
     <SymbolCache folder="""" />
     <SourceCodeRoot folder="""" />
+    <Module file=""""/>
 </Config >
 ";
+
         #endregion
 
         #region help
@@ -222,6 +229,7 @@ Some can be overriden by command line.";
 
 Run 'DumpReport /CONFIG CREATE' to create a default config file.
 ";
+
         static public string cssHelp = @"
 CSS styles:
 
@@ -249,6 +257,7 @@ Run 'DumpReport /STYLE CREATE' to create a sample CSS file (style.css).";
 .effmach
 .logclose
 ";
+
         static public string dbgScriptMain = @".logopen /u ""{LOG_FILE}""
 ||
 {PROGRESS_STEP}
@@ -269,6 +278,12 @@ Run 'DumpReport /STYLE CREATE' to create a sample CSS file (style.css).";
 .echo TARGET:
 vertarget
 !peb
+.echo >>> SYM RELOAD
+{PROGRESS_STEP}
+.symfix
+.sympath+ ""{PDB_PATH}""
+!sym noisy
+.reload /i ""{MODULE_FILE}""
 .echo >>> MANAGED THREADS
 {PROGRESS_STEP}
 !Threads
@@ -298,6 +313,7 @@ lmov
 .echo >>> END OF LOG
 .logclose
 ";
+
         static public string dbgUnhandledExceptionFilter32 = @".logopen /u ""{LOG_FILE}""
 ||
 .block { .effmach x86 }
@@ -306,23 +322,27 @@ r @$t0 = 0;
 .foreach(value {dd[FIRST_PARAM]}){ .if (@$t0 == 1) { .exr value }; r @$t0 = @$t0 + 1; }
 .logclose
 ";
+
         static public string dbgKiUserExceptionDispatch = @".logopen /u ""{LOG_FILE}""
 ||
 .exr [CHILD_SP] + @@c++(sizeof(ntdll!_CONTEXT)) + 0x20
 .logclose
 ";
+
         // Used both with 32 and 64 bits dumps
         static public string dbgRtlDispatchException = @".logopen /u ""{LOG_FILE}""
 ||
 .exr [THIRD_PARAM]
 .logclose
 ";
+
         static public string dbgWerpReportFault64 = @".logopen /u ""{LOG_FILE}""
 ||
 r @$t0 = 0;
 .foreach(value {dq[FOURTH_PARAM]}){ .if (@$t0 == 1) { .exr value; .break; }; r @$t0 = @$t0 + 1; }
 .logclose
 ";
+
         #endregion
     }
 }

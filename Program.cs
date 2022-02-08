@@ -76,6 +76,7 @@ namespace DumpReport
                 if (config.ReportShow && File.Exists(config.ReportFile))
                     LaunchBrowser(config.ReportFile);
             }
+
             WriteConsole("Finished.");
         }
 
@@ -113,6 +114,10 @@ namespace DumpReport
             script = script.Replace("{LOG_FILE}", outFile);
             // Set the proper intruction pointer register
             script = script.Replace("{INSTRUCT_PTR}", is32bitDump ? "@eip" : "@rip");
+            script = script.Replace("{MODULE_FILE}", config.ModuleFile);
+            script = script.Replace("{PDB_PATH}", config.PdbFolder);
+
+
             // Adapt or remove the progress information
             if (progress != null)
                 script = progress.PrepareScript(script, outFile, is32bitDump);
@@ -141,7 +146,8 @@ namespace DumpReport
                 stream.WriteLine(script);
 
             // Start the debugger
-            string arguments = string.Format(@"-y ""{0};srv*{1}*http://msdl.microsoft.com/download/symbols"" -z ""{2}"" -c ""$$><{3};q""",
+            string arguments = string.Format(
+                @"-y ""{0};srv*{1}*http://msdl.microsoft.com/download/symbols"" -z ""{2}"" -c ""$$><{3};q""",
                 config.PdbFolder, config.SymbolCache, config.DumpFile, scriptFile);
             ProcessStartInfo psi = new ProcessStartInfo
             {
@@ -162,6 +168,7 @@ namespace DumpReport
                 if (showProgress)
                     progress.ShowLogProgress();
             }
+
             bool exited = task.Result;
 
             File.Delete(scriptFile);
@@ -169,8 +176,10 @@ namespace DumpReport
             if (!exited)
             {
                 process.Kill();
-                throw new Exception(String.Format("Execution has been cancelled after {0} minutes.", config.DbgTimeout));
+                throw new Exception(String.Format("Execution has been cancelled after {0} minutes.",
+                    config.DbgTimeout));
             }
+
             if (process.ExitCode != 0)
                 throw new Exception("The debugger did not finish properly.");
 
@@ -205,6 +214,7 @@ namespace DumpReport
                     else if (line.Contains("Effective machine") && line.Contains("x86"))
                         x86Found = true;
                 }
+
                 is32bitDump = (wow64Found || x86Found);
             }
 
@@ -213,14 +223,17 @@ namespace DumpReport
             else if (!is32bitDump && GetDebugger() == config.DbgExe32)
                 logManager.notes.Add("64-bit dump processed with a 32-bit debugger.");
             if (wow64Found)
-                logManager.notes.Add("64-bit dumps of 32-bit processes may show inaccurate or incomplete call stack traces.");
+                logManager.notes.Add(
+                    "64-bit dumps of 32-bit processes may show inaccurate or incomplete call stack traces.");
         }
 
         // Tries to obtain the proper exception record by using auxiliary debugger scripts.
         public static void FindExceptionRecord()
         {
             string exrLogFile = config.LogFile;
-            exrLogFile = Path.ChangeExtension(exrLogFile, ".exr.log"); // Store the output of the exception record script in a separate file
+            exrLogFile =
+                Path.ChangeExtension(exrLogFile,
+                    ".exr.log"); // Store the output of the exception record script in a separate file
             File.Delete(exrLogFile); // Delete previous logs
 
             WriteConsole("Getting exception record...", true);
